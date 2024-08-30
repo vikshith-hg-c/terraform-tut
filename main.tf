@@ -42,7 +42,34 @@ resource "aws_iam_user_policy" "instanceManageUser_assume_role" {
     ]})
   } 
   
+resource "aws_instance" "new_instance" {
+  ami = "ami-02b49a24cfb95941c"
+  instance_type = "t2.large"
+  tags = {
+    "Name" = "new_instance"
+  }
+}
 
+resource "aws_s3_bucket" "test-bucket-vikshith" {
+  bucket = "test-bucket-vikshith"
+
+  tags = {
+    Name        = "test-bucket-vikshith"
+  }
+}
+resource "aws_s3_bucket_ownership_controls" "test-bucket-vikshith" {
+  bucket = aws_s3_bucket.test-bucket-vikshith.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_acl" "example" {
+  depends_on = [aws_s3_bucket_ownership_controls.test-bucket-vikshith]
+
+  bucket = aws_s3_bucket.test-bucket-vikshith.id
+  acl    = "private"
+}
 
 locals {
   inbound_rules = [
